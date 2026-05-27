@@ -70,59 +70,14 @@ export const getRestaurants = async (_req: AuthRequest, res: Response): Promise<
   res.json({ restaurants });
 };
 
-export const getRestaurantById=async (req: AuthRequest, res: Response): Promise<void> => {
+export const getRestaurantById = async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
-    const data=await prisma.restaurant.findUnique({
-        where:{id}
-    })
-    if (!data) {
-        res.status(404).json({ error: "Restaurant not found" });
+    const restaurant = await prisma.restaurant.findUnique({
+        where: { id },
+    });
+    if (!restaurant) {
+        res.status(404).json({ message: "Restaurant not found" });
         return;
     }
-    res.json(data);
-
+    res.json({ restaurant });
 }
-
-const createMenuItemSchema = z.object({
-  restaurantId: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string().optional(),
-  price: z.number().positive(),
-  categoryId: z.string().optional(),
-  imageUrl: z.string().url().optional(),
-});
-
-export const createMenuItem = async (req: AuthRequest, res: Response): Promise<void> => {
-  const userId = req.userId;
-  if (!userId) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  const parsed = createMenuItemSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ message: "Validation error", issues: parsed.error.issues });
-    return;
-  }
-
-  const { restaurantId, name, description, price, categoryId, imageUrl } = parsed.data;
-
-  const restaurant = await prisma.restaurant.findUnique({ where: { id: restaurantId } });
-  if (!restaurant) {
-    res.status(404).json({ message: "Restaurant not found" });
-    return;
-  }
-
-  if (restaurant.ownerId !== userId) {
-    res.status(403).json({ message: "Only the restaurant owner can add menu items" });
-    return;
-  }
-
-  const menuItem = await prisma.menuItem.create({
-    data: { restaurantId, name, description, price, categoryId: categoryId ?? null, imageUrl: imageUrl ?? null },
-  });
-
-  res.status(201).json({ menuItem });
-};
-
-

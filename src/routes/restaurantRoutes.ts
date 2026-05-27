@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { createRestaurant, getRestaurants, getRestaurantById, createMenuItem } from "../controllers/restaurantController";
+import { createMenuItem } from "../controllers/menuController";
+import { createRestaurant, getRestaurants, getRestaurantById } from "../controllers/restaurantController";
 import { authenticate } from "../middlewares/authMiddleware";
 
 const router = Router();
