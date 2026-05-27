@@ -74,6 +74,7 @@ export const getRestaurantById = async (req: AuthRequest, res: Response): Promis
     const { id } = req.params;
     const restaurant = await prisma.restaurant.findUnique({
         where: { id },
+        include: { menuItems: true },
     });
     if (!restaurant) {
         res.status(404).json({ message: "Restaurant not found" });
